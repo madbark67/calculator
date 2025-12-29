@@ -1,8 +1,26 @@
-let main = document.querySelector(".main");
+const main = document.querySelector(".main");
 
 let num1;
 let num2;
 let operator;
+
+const buttons = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', 'x', '÷', '='];
+const buttonObjects = [];
+
+buttons.forEach((value) => {
+    const buttonObject = createButton(value);
+    main.appendChild(buttonObject.button);
+    buttonObjects.push(buttonObject);
+});
+
+function createButton(value) {
+    const button = document.createElement("button");
+    button.textContent = value;
+    return {
+        button,
+        value
+    };
+}
 
 function operate(operator, num1, num2) {
     let result;
