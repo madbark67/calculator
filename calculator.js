@@ -4,8 +4,12 @@ let num1;
 let num2;
 let operator;
 
-const buttons = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', 'x', '÷', '='];
+const buttons = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', 'x', '÷', '=', 'C'];
 const buttonObjects = [];
+
+const display = document.createElement("div");
+display.textContent = "3 + 5";
+main.appendChild(display);
 
 buttons.forEach((value) => {
     const buttonObject = createButton(value);
