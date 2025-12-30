@@ -8,40 +8,43 @@ main.appendChild(display);
 buttons.forEach((value) => {
     const buttonObject = createButton(value);
     buttonObject.button.addEventListener("click", function (e) {
-        switch (value) {
-            case "=":
-                parseValues();
-                break;
-            case "C":
-                clear();
-                break;
-            default:
-                display.textContent += value;
-        }
+        handleClick(value);
     });
     main.appendChild(buttonObject.button);
 });
 
-function parseValues() {
-    let content = display.textContent.split(/([+÷\-x])/);
-    let val1 = Number(content[0]);
-    let val2 = Number(content[2]);
-    let operator;
-    switch (content[1]) {
-        case "+":
-            operator = "+";
+let val1 = '';
+let val2 = '';
+let operator = '';
+let lastVal = '';
+function handleClick(value) {
+    switch (value) {
+        case "=":
+            if (val2 === "" && val1 !== "" && operator !== "") {
+                val2 = val1;
+            } else if (operator === "") {
+                break;
+            }
+            val1 = operate(operator, val1, val2);
+            display.textContent = val1;
+            val2 = "";
+            break;
+        case "C":
+            clear();
             break;
         case "-":
-            operator = "-";
-            break;
+        case "+":
         case "x":
-            operator = "*";
-            break;
         case "÷":
-            operator = "/";
+            operatorCheck(value);
             break;
+        default:
+            if (lastVal == "=") {
+                clear();
+            }
+            numberCheck(value);
     }
-    display.textContent = operate(operator, val1, val2);
+    lastVal = value;
 }
 
 function createButton(value) {
@@ -53,12 +56,52 @@ function createButton(value) {
     };
 }
 
+function numberCheck(value) {
+    if (val1 === "") {
+        val1 = value;
+        display.textContent = val1;
+    } else if (val1 !== "" && operator === "") {
+        val1 += value;
+        display.textContent = val1;
+    } else if (val1 !== "" && operator !== "") {
+        val2 += value;
+        display.textContent = val2;
+
+    }
+}
+
+function operatorCheck(value) {
+    if (value == 'x') {
+        value = "*";
+    } else if (value == '÷') {
+        value = "/";
+    }
+
+    if (val1 === "") {
+        return;
+    }
+    if (operator === "") {
+        operator = value;
+    } else if (operator !== "" && val2 === "") {
+        operator = value;
+    } else if (val1 !== "" && val2 !== "" && operator != "") {
+        val1 = operate(operator, val1, val2);
+        operator = value;
+        val2 = "";
+        display.textContent = val1;
+    }
+}
+
 function clear() {
     display.textContent = "";
-    return;
+    val1 = "";
+    val2 = "";
+    operator = "";
 }
 
 function operate(operator, num1, num2) {
+    num1 = Number(num1);
+    num2 = Number(num2);
     let result;
     switch (operator) {
         case "+":
@@ -74,7 +117,7 @@ function operate(operator, num1, num2) {
             result = divide(num1, num2);
             break;
     }
-    return result;
+    return Number.isInteger(result) ? result : result.toFixed(9);
 }
 
 function add(num1, num2) {
@@ -90,5 +133,10 @@ function multiply(num1, num2) {
 }
 
 function divide(num1, num2) {
+    if (num2 == 0) {
+        clear();
+        display.textContent = "NaN";
+        return "";
+    }
     return num1 / num2;
 }
