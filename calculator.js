@@ -1,6 +1,6 @@
 const main = document.querySelector(".main");
 
-const buttons = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', 'x', '÷', '=', 'C'];
+const buttons = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', 'x', '÷', '=', 'C', '.', '←'];
 
 const display = document.createElement("div");
 main.appendChild(display);
@@ -20,14 +20,14 @@ let lastVal = '';
 function handleClick(value) {
     switch (value) {
         case "=":
-            if (val2 === "" && val1 !== "" && operator !== "") {
-                val2 = val1;
-            } else if (operator === "") {
-                break;
-            }
+            if (operator === "") return;
+            if (val2 === "") val2 = val1;
+
             val1 = operate(operator, val1, val2);
             display.textContent = val1;
+
             val2 = "";
+            operator = "";
             break;
         case "C":
             clear();
@@ -57,17 +57,47 @@ function createButton(value) {
 }
 
 function numberCheck(value) {
-    if (val1 === "") {
-        val1 = value;
-        display.textContent = val1;
-    } else if (val1 !== "" && operator === "") {
+
+
+    if (operator === "") {
+        // val1
+        if (val1 === "" && value === ".") {
+            val1 = "0";
+        }
+        if (val1.includes('.') && value === ".") {
+            return;
+        }
+
+
+        if (val1 !== "" && value === "←") {
+            val1 = val1.slice(0, -1);
+            display.textContent = val1;
+            return;
+        }
+        if (val1 === "" && value === "←") { return; }
+
         val1 += value;
         display.textContent = val1;
-    } else if (val1 !== "" && operator !== "") {
+    } else {
+        // val2
+        if (val2 === "" && value === ".") {
+            val2 = "0";
+        }
+        if (val2.includes('.') && value === ".") {
+            return;
+        }
+
+        if (val2 !== "" && value === "←") {
+            val2 = val2.slice(0, -1);
+            display.textContent = val2;
+            return;
+        }
+        if (val2 === "" && value === "←") { return; }
         val2 += value;
         display.textContent = val2;
-
     }
+
+
 }
 
 function operatorCheck(value) {
@@ -77,19 +107,19 @@ function operatorCheck(value) {
         value = "/";
     }
 
+
     if (val1 === "") {
         return;
     }
-    if (operator === "") {
-        operator = value;
-    } else if (operator !== "" && val2 === "") {
-        operator = value;
-    } else if (val1 !== "" && val2 !== "" && operator != "") {
+
+    if (val2 !== "") {
         val1 = operate(operator, val1, val2);
-        operator = value;
         val2 = "";
         display.textContent = val1;
     }
+
+    operator = value;
+
 }
 
 function clear() {
@@ -97,9 +127,13 @@ function clear() {
     val1 = "";
     val2 = "";
     operator = "";
+    lastVal = "";
 }
 
 function operate(operator, num1, num2) {
+    if (num1.endsWith('.')) num1 += "0";
+    if (num2.endsWith('.')) num2 += "0";
+
     num1 = Number(num1);
     num2 = Number(num2);
     let result;
